@@ -61,9 +61,17 @@ public class DisplayActivity extends AppCompatActivity implements View.OnClickLi
             }
         };
 
+        DialogInterface.OnClickListener cancelListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        };
+
         new AlertDialog.Builder(this)
                 .setTitle("Select Photo")
-                .setPositiveButton("album", albumListener)
+                .setNegativeButton("album", albumListener)
+                .setPositiveButton("cancel", cancelListener)
                 .show();
     }
 

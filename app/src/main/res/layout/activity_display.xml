@@ -9,26 +9,32 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        tools:layout_editor_absoluteX="101dp"
-        tools:layout_editor_absoluteY="0dp">
-
-        <TextView
-            android:id="@+id/calculatedDay"
-            android:layout_width="match_parent"
-            android:layout_height="65dp" />
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="33dp">
 
         <ImageView
             android:id="@+id/user_image"
             android:layout_width="103dp"
-            android:layout_height="104dp"
+            android:layout_height="103dp"
             android:onClick="onClick"
             app:srcCompat="@mipmap/ic_launcher_round" />
 
+        <TextView
+            android:id="@+id/calculatedDay"
+            android:layout_width="70dp"
+            android:layout_height="56dp" />
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="31dp"
+            android:layout_height="44dp"
+            android:layout_weight="1"
+            app:srcCompat="@drawable/like" />
+
         <ImageView
             android:id="@+id/user_image2"
-            android:layout_width="match_parent"
-            android:layout_height="104dp"
+            android:layout_width="103dp"
+            android:layout_height="103dp"
             android:onClick="onClick"
             app:srcCompat="@mipmap/ic_launcher_round" />
 

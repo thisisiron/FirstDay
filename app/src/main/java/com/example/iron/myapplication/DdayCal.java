@@ -10,7 +10,7 @@ public class DdayCal {
 
     public int countdday(String dateStr) {
         try {
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
             Date dateObj = simpleDateFormat.parse(dateStr);
             Calendar todayCal = Calendar.getInstance(); //오늘날자 가져오기
             Calendar ddayCal = Calendar.getInstance(); //오늘날자를 가져와 변경시킴
@@ -21,12 +21,12 @@ public class DdayCal {
 
             long today = todayCal.getTimeInMillis()/86400000; //->(24 * 60 * 60 * 1000) 24시간 60분 60초 * (ms초->초 변환 1000)
             long dday = ddayCal.getTimeInMillis()/86400000;
-            long count = dday + 1 - today; // 오늘 날짜에서 dday 날짜를 빼주게 됩니다.
+            long count = today - dday; // 오늘 날짜에서 dday 날짜를 빼주게 됩니다.
             Log.e("Test",Long.toString(today));
             Log.e("Test",Long.toString(dday));
             Log.e("Test",Long.toString(count));
 
-            return (int) count + 1;
+            return (int) count;
         }
         catch (Exception e)
         {
