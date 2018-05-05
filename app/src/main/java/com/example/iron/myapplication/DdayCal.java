@@ -14,12 +14,14 @@ public class DdayCal {
             Date dateObj = simpleDateFormat.parse(dateStr);
             Calendar todayCal = Calendar.getInstance(); //오늘날자 가져오기
             Calendar ddayCal = Calendar.getInstance(); //오늘날자를 가져와 변경시킴
+            Log.e("테스트",simpleDateFormat.format(todayCal.getTime()) + "");
+            Log.e("테스트",simpleDateFormat.format(ddayCal.getTime()) + "");
 
             ddayCal.setTime(dateObj);// D-day의 날짜를 입력
             Log.e("테스트",simpleDateFormat.format(todayCal.getTime()) + "");
             Log.e("테스트",simpleDateFormat.format(ddayCal.getTime()) + "");
 
-            long today = todayCal.getTimeInMillis()/86400000; //->(24 * 60 * 60 * 1000) 24시간 60분 60초 * (ms초->초 변환 1000)
+            long today = todayCal.getTimeInMillis()/86400000; //->(24 * 60 * 60 * 1000) 24시간 60분 60초 * (ms초->초 변환 1000) 86400000
             long dday = ddayCal.getTimeInMillis()/86400000;
             long count = today - dday; // 오늘 날짜에서 dday 날짜를 빼주게 됩니다.
             Log.e("Test",Long.toString(today));
