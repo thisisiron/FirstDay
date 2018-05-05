@@ -29,30 +29,30 @@ public class SQLiteHelper extends SQLiteOpenHelper {
         statement.executeInsert();
     }
 
-    public void updateData(byte[] image, int id) {
-        SQLiteDatabase database = getWritableDatabase();
+//    public void updateData(byte[] image, int id) {
+//        SQLiteDatabase database = getWritableDatabase();
+//
+//        String sql = "UPDATE LOVE SET image1 = ? WHERE id = ?";
+//        SQLiteStatement statement = database.compileStatement(sql);
+//
+//        statement.bindBlob(0, image);
+//        statement.bindDouble(1, (double)id);
+//
+//        statement.execute();
+//        database.close();
+//    }
 
-        String sql = "UPDATE LOVE SET image1 = ? WHERE id = ?";
-        SQLiteStatement statement = database.compileStatement(sql);
-
-        statement.bindBlob(0, image);
-        statement.bindDouble(1, (double)id);
-
-        statement.execute();
-        database.close();
-    }
-
-    public  void deleteData(int id) {
-        SQLiteDatabase database = getWritableDatabase();
-
-        String sql = "DELETE FROM FOOD WHERE id = ?";
-        SQLiteStatement statement = database.compileStatement(sql);
-        statement.clearBindings();
-        statement.bindDouble(1, (double)id);
-
-        statement.execute();
-        database.close();
-    }
+//    public  void deleteData(int id) {
+//        SQLiteDatabase database = getWritableDatabase();
+//
+//        String sql = "DELETE FROM FOOD WHERE id = ?";
+//        SQLiteStatement statement = database.compileStatement(sql);
+//        statement.clearBindings();
+//        statement.bindDouble(1, (double)id);
+//
+//        statement.execute();
+//        database.close();
+//    }
 
     public Cursor getData(String sql){
         SQLiteDatabase database = getReadableDatabase();
