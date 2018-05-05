@@ -12,11 +12,10 @@ import android.widget.Toast;
 
 public class DateSettingActivity extends AppCompatActivity {
 
+    public static SQLiteHelper sqLiteHelper;
 
     EditText editText;
     Button btnSend;
-
-    public static SQLiteHelper sqLiteHelper;
 
 
     @Override
@@ -27,10 +26,7 @@ public class DateSettingActivity extends AppCompatActivity {
         init();
 
         sqLiteHelper = new SQLiteHelper(this, "LoveDB.sqlite", null, 1 );
-
         sqLiteHelper.queryData("CREATE TABLE IF NOT EXISTS LOVE (Id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR, image1 BLOG, image2 BLOG)");
-
-
 
         // send first day and change intent when you click on send btn
         btnSend.setOnClickListener(new View.OnClickListener() {
@@ -48,17 +44,6 @@ public class DateSettingActivity extends AppCompatActivity {
                 catch (Exception e) {
                     e.printStackTrace();
                 }
-
-
-//              디비 내용 확인하기
-//                Cursor cursor = sqLiteHelper.getData("SELECT * FROM LOVE");
-//                while(cursor.moveToNext()){
-//                    int id = cursor.getInt(0);
-//                    String date = cursor.getString(1);
-//                    System.out.println("id "+ id);
-//                    System.out.println("date "+ date);
-//                }
-
             }
         });
 
