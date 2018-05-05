@@ -3,10 +3,14 @@ package com.example.iron.myapplication;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -15,26 +19,30 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-
-    private static final int PICK_FROM_ALBUM = 0;
-    private static final int CROP_FROM_iMAGE = 1;
+public class MainActivity extends AppCompatActivity {
 
 
-    private Uri mImageCaptureUri;
+    private static final int CROP_FROM_iMAGE = 0;
+    private static final int SAVE_IMAGE_TO_SQLITE = 1;
+
+
     private ImageView iv_UserPhoto;
     private String absoultePath;
 
 
+    private Uri uri;
+
     TextView textView;
     ImageView userImage1;
-
-    final int REQUEST_CODE_GALLERY = 999;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +53,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Intent intent = getIntent();
 
         init();
-        showFirstDay();
+
+        showFirstDay(); // calc and show First day depended on the input time
 
         userImage1.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -53,105 +62,185 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 ActivityCompat.requestPermissions(
                         MainActivity.this,
                         new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                        REQUEST_CODE_GALLERY
+                        CROP_FROM_iMAGE
                 );
             }
         });
 
-
-
-
-
-
     }
-
 
     @Override
-    public void onClick(View view) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        DialogInterface.OnClickListener albumListener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                doTakeAlbumAction();
+        // pick image from the gallery
+        if(requestCode == CROP_FROM_iMAGE){
+            if(grantResults.length >0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                Intent intent = new Intent(Intent.ACTION_PICK);
+                intent.setType(android.provider.MediaStore.Images.Media.CONTENT_TYPE);
+                startActivityForResult(intent, CROP_FROM_iMAGE);
             }
-        };
-
-        DialogInterface.OnClickListener cancelListener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
+            else {
+                Toast.makeText(getApplicationContext(), "You don't have permission to access file location!", Toast.LENGTH_SHORT).show();
             }
-        };
-
-        new AlertDialog.Builder(this)
-                .setTitle("Select Photo")
-                .setNegativeButton("album", albumListener)
-                .setPositiveButton("cancel", cancelListener)
-                .show();
-    }
-
-
-    public void doTakeAlbumAction() {
-        Intent intent = new Intent(Intent.ACTION_PICK);
-        intent.setType(android.provider.MediaStore.Images.Media.CONTENT_TYPE);
-        startActivityForResult(intent, PICK_FROM_ALBUM);
-    }
-
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (resultCode != RESULT_OK) {
             return;
         }
 
-        switch (requestCode) {
-            case PICK_FROM_ALBUM: {
-                mImageCaptureUri = data.getData();
-                Log.d("SmartWheel", mImageCaptureUri.getPath().toString());
+
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        System.out.println("requestCode : "+ requestCode);
+        System.out.println("resultCoide : " + resultCode);
+        if(resultCode != RESULT_OK) {
+            return;
+        }
+
+        switch (requestCode){
+            case CROP_FROM_iMAGE: {
+                uri = data.getData();
+                Log.e("Test",uri.getPath().toString());
+
+                // Crop image
                 Intent intent = new Intent("com.android.camera.action.CROP");
-                intent.setDataAndType(mImageCaptureUri, "image/*");
+                intent.setDataAndType(uri, "image/*");
                 intent.putExtra("outputX", 200); // CROP한 이미지의 x축 크기
                 intent.putExtra("outputY", 200); // CROP한 이미지의 y축 크기
                 intent.putExtra("aspectX", 1); // CROP 박스의 X축 비율
                 intent.putExtra("aspectY", 1); // CROP 박스의 Y축 비율
                 intent.putExtra("scale", true);
                 intent.putExtra("return-data", true);
-                startActivityForResult(intent, CROP_FROM_iMAGE); // CROP_FROM_CAMERA case문 이동
+                startActivityForResult(intent, SAVE_IMAGE_TO_SQLITE); // switch to SAVE_IMAGE_TO_SQLITE
 
                 break;
             }
 
-            case CROP_FROM_iMAGE: {
-                // 크롭이 된 이후의 이미지를 넘겨 받습니다.
-                // 이미지뷰에 이미지를 보여준다거나 부가적인 작업 이후에
-                // 임시 파일을 삭제합니다.
-                if (resultCode != RESULT_OK) {
-                    return;
-                }
+            case SAVE_IMAGE_TO_SQLITE: {
 
                 final Bundle extras = data.getExtras();
-                // CROP된 이미지를 저장하기 위한 FILE 경로
-                String filePath = Environment.getExternalStorageDirectory().getAbsolutePath() +
-                        "/SmartWheel/" + System.currentTimeMillis() + ".jpg";
-                if (extras != null) {
-                    Bitmap photo = extras.getParcelable("data"); // CROP된 BITMAP
-                    iv_UserPhoto.setImageBitmap(photo); // 레이아웃의 이미지칸에 CROP된 BITMAP을 보여줌
-                    storeCropImage(photo, filePath); // CROP된 이미지를 외부저장소, 앨범에 저장한다.
-                    absoultePath = filePath;
-                    break;
-                }
+                Bitmap image = extras.getParcelable("data"); // CROP된 BITMAP
 
-                // 임시 파일 삭제
-                File f = new File(mImageCaptureUri.getPath());
-                if (f.exists()) {
-                    f.delete();
-                }
+                System.out.println("image: " + image);
+                userImage1.setImageBitmap(image);
+                break;
             }
-
         }
+
+
+
+
+
+//            try{
+//                DateSettingActivity.sqLiteHelper.updateData(
+//                        imageViewToByte(userImage1),
+//                        0
+//                );
+//            } catch(Exception e){
+//                e.printStackTrace();
+//            }
+//
+//            try {
+//                InputStream inputStream = getContentResolver().openInputStream(uri);
+//
+//                Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+//                userImage1.setImageBitmap(bitmap);
+//
+//            } catch (FileNotFoundException e) {
+//                e.printStackTrace();
+//            }
+
     }
+
+
+//    @Override
+//    public void onClick(View view) {
+//
+//        DialogInterface.OnClickListener albumListener = new DialogInterface.OnClickListener() {
+//            @Override
+//            public void onClick(DialogInterface dialog, int which) {
+//                doTakeAlbumAction();
+//            }
+//        };
+//
+//        DialogInterface.OnClickListener cancelListener = new DialogInterface.OnClickListener() {
+//            @Override
+//            public void onClick(DialogInterface dialog, int which) {
+//                dialog.dismiss();
+//            }
+//        };
+//
+//        new AlertDialog.Builder(this)
+//                .setTitle("Select Photo")
+//                .setNegativeButton("album", albumListener)
+//                .setPositiveButton("cancel", cancelListener)
+//                .show();
+//    }
+//
+//
+//    public void doTakeAlbumAction() {
+//        Intent intent = new Intent(Intent.ACTION_PICK);
+//        intent.setType(android.provider.MediaStore.Images.Media.CONTENT_TYPE);
+//        startActivityForResult(intent, PICK_FROM_ALBUM);
+//    }
+
+
+//    @Override
+//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//
+//        if (resultCode != RESULT_OK) {
+//            return;
+//        }
+//
+//        switch (requestCode) {
+//            case PICK_FROM_ALBUM: {
+//                mImageCaptureUri = data.getData();
+//                Log.d("SmartWheel", mImageCaptureUri.getPath().toString());
+//                Intent intent = new Intent("com.android.camera.action.CROP");
+//                intent.setDataAndType(mImageCaptureUri, "image/*");
+//                intent.putExtra("outputX", 200); // CROP한 이미지의 x축 크기
+//                intent.putExtra("outputY", 200); // CROP한 이미지의 y축 크기
+//                intent.putExtra("aspectX", 1); // CROP 박스의 X축 비율
+//                intent.putExtra("aspectY", 1); // CROP 박스의 Y축 비율
+//                intent.putExtra("scale", true);
+//                intent.putExtra("return-data", true);
+//                startActivityForResult(intent, CROP_FROM_iMAGE); // CROP_FROM_CAMERA case문 이동
+//
+//                break;
+//            }
+//
+//            case CROP_FROM_iMAGE: {
+//                // 크롭이 된 이후의 이미지를 넘겨 받습니다.
+//                // 이미지뷰에 이미지를 보여준다거나 부가적인 작업 이후에
+//                // 임시 파일을 삭제합니다.
+//                if (resultCode != RESULT_OK) {
+//                    return;
+//                }
+//
+//                final Bundle extras = data.getExtras();
+//                // CROP된 이미지를 저장하기 위한 FILE 경로
+//                String filePath = Environment.getExternalStorageDirectory().getAbsolutePath() +
+//                        "/SmartWheel/" + System.currentTimeMillis() + ".jpg";
+//                if (extras != null) {
+//                    Bitmap photo = extras.getParcelable("data"); // CROP된 BITMAP
+//                    iv_UserPhoto.setImageBitmap(photo); // 레이아웃의 이미지칸에 CROP된 BITMAP을 보여줌
+//                    storeCropImage(photo, filePath); // CROP된 이미지를 외부저장소, 앨범에 저장한다.
+//                    absoultePath = filePath;
+//                    break;
+//                }
+//
+//                // 임시 파일 삭제
+//                File f = new File(mImageCaptureUri.getPath());
+//                if (f.exists()) {
+//                    f.delete();
+//                }
+//            }
+//
+//        }
+//    }
 
 
     /*
@@ -177,6 +266,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+
+    public static byte[] imageViewToByte(ImageView image) {
+        Bitmap bitmap = ((BitmapDrawable) image.getDrawable()).getBitmap();
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        byte[] byteArray = stream.toByteArray();
+        return byteArray;
     }
 
 

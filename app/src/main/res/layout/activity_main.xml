@@ -17,7 +17,6 @@
             android:id="@+id/user_image1"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:onClick="onClick"
             app:srcCompat="@mipmap/ic_launcher_round"
             app:civ_border_width="2dp"
             app:civ_border_color="#FF000000"/>
@@ -39,7 +38,6 @@
             android:id="@+id/user_image2"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:onClick="onClick"
             app:srcCompat="@mipmap/ic_launcher_round" />
 
 
