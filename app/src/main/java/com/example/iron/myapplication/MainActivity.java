@@ -10,6 +10,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -19,6 +20,8 @@ import com.soundcloud.android.crop.Crop;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+
+import static com.example.iron.myapplication.DateSettingActivity.sqLiteHelper;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -30,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 
         init();
 
@@ -45,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /* Android-Crop library */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent result) {
         if (requestCode == Crop.REQUEST_PICK && resultCode == RESULT_OK) {
@@ -59,25 +64,44 @@ public class MainActivity extends AppCompatActivity {
         Crop.of(source, destination).asSquare().start(this);
     }
 
+    // set image on ImageView
     private void handleCrop(int resultCode, Intent result) {
         if (resultCode == RESULT_OK) {
             userImage1.setImageURI(Crop.getOutput(result));
+            storeImage();
         } else if (resultCode == Crop.RESULT_ERROR) {
             Toast.makeText(this, Crop.getError(result).getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
-//    // when you store image to DB
-//    public static byte[] imageViewToByte(ImageView image) {
-//        Bitmap bitmap = ((BitmapDrawable) image.getDrawable()).getBitmap();
-//        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-//        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-//        byte[] byteArray = stream.toByteArray();
-//        return byteArray;
-//    }
+    // store image at DB
+    private void storeImage(){
+        try{
+            sqLiteHelper.updateData(
+                    imageViewToByte(userImage1),
+                    1
+            );
+            sqLiteHelper.printDBContext();
+        } catch(Exception e){
+            Log.e("Update error", e.getMessage());
+        }
 
-    public void showFirstDay(){
-        Cursor cursor = DateSettingActivity.sqLiteHelper.getData("SELECT * FROM LOVE");
+
+    }
+
+
+
+    // when you store image to DB
+    public static byte[] imageViewToByte(ImageView image) {
+        Bitmap bitmap = ((BitmapDrawable) image.getDrawable()).getBitmap();
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        byte[] byteArray = stream.toByteArray();
+        return byteArray;
+    }
+
+    public void showFirstDay() {
+        Cursor cursor = sqLiteHelper.getData("SELECT * FROM LOVE");
         while(cursor.moveToNext()){
             int id = cursor.getInt(0);
             String dateStr = cursor.getString(1);
