@@ -70,6 +70,35 @@ public class SQLiteHelper extends SQLiteOpenHelper {
         }
     }
 
+    // Check image is exist
+    public boolean isImageExist(){
+        try{
+            Cursor cursor = getData("SELECT * FROM LOVE");
+            while (cursor.moveToNext()) {
+                System.out.println("fuck: " + cursor.getBlob(2));
+                if(cursor.getBlob(2) == null){
+                    return false;
+                } else {
+                    return true;
+                }
+            } return false;
+        } catch(Exception e){
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Get Image
+    public byte[] getImage(){
+        Cursor cursor = getData("SELECT * FROM LOVE");
+        byte[] image = null;
+
+        while (cursor.moveToNext()) {
+            image = cursor.getBlob(2);
+        }
+        return image;
+    }
+
     // 디비 내용 확인하기
     public void printDBContext(){
         Cursor cursor = getData("SELECT * FROM LOVE");

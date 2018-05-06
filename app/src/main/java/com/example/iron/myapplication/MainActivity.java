@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 
 import android.net.Uri;
@@ -38,6 +39,13 @@ public class MainActivity extends AppCompatActivity {
         init();
 
         showFirstDay(); // calc and show First day depended on the input time
+
+        if(sqLiteHelper.isImageExist()){
+            byte[] existedImage = sqLiteHelper.getImage();
+            Bitmap bitmap = BitmapFactory.decodeByteArray(existedImage, 0, existedImage.length);
+            userImage1.setImageBitmap(bitmap);
+        }
+
 
         userImage1.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -85,8 +93,6 @@ public class MainActivity extends AppCompatActivity {
         } catch(Exception e){
             Log.e("Update error", e.getMessage());
         }
-
-
     }
 
 
