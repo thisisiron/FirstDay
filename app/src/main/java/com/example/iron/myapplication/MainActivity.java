@@ -1,6 +1,7 @@
 package com.example.iron.myapplication;
 
 
+import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -30,6 +31,10 @@ public class MainActivity extends AppCompatActivity {
     TextView textView;
     ImageView userImage1;
 
+
+    private BackPressCloseHandler backPressCloseHandler;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,7 +43,11 @@ public class MainActivity extends AppCompatActivity {
 
         init();
 
-        showFirstDay(); // calc and show First day depended on the input time
+        showFirstDay();
+
+        // calc and show First day depended on the input time
+        backPressCloseHandler = new BackPressCloseHandler(this);
+
 
         if(sqLiteHelper.isImageExist()){
             byte[] existedImage = sqLiteHelper.getImage();
@@ -119,6 +128,12 @@ public class MainActivity extends AppCompatActivity {
             textView.setText(Integer.toString(calculatedDay));
         }
     }
+
+    @Override
+    public void onBackPressed() {
+        backPressCloseHandler.onBackPressed();
+    }
+
 
 
     private void init(){

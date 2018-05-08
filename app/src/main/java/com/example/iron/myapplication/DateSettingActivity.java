@@ -30,6 +30,7 @@ public class DateSettingActivity extends AppCompatActivity {
         // if DB is already exist, go to MainActivity or create DB
         if(sqLiteHelper.isDBExist()) {
             Intent intent = new Intent(DateSettingActivity.this, MainActivity.class);
+            finish();
             startActivity(intent);
         } else {
             sqLiteHelper.queryData("CREATE TABLE IF NOT EXISTS LOVE (Id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR, image1 BLOG, image2 BLOG)");
@@ -45,6 +46,7 @@ public class DateSettingActivity extends AppCompatActivity {
                         );
                         Toast.makeText(getApplicationContext(), "success!", Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(DateSettingActivity.this, MainActivity.class);
+                        finish();
                         startActivity(intent);
                     }
                     catch (Exception e) {
