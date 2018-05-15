@@ -18,14 +18,15 @@ public class SQLiteHelper extends SQLiteOpenHelper {
         database.execSQL(sql);
     }
 
-    public void insertData(String date){
+    // insert data into DB
+    public void insertData(String data){
         SQLiteDatabase database = getWritableDatabase();
-        String sql = "INSERT INTO LOVE VALUES (NULL, ?, NULL, NULL)";
+        String sql = "INSERT INTO LOVE VALUES (NULL, ?, NULL, NULL)"; // insert date data into LOVE
 
         SQLiteStatement statement = database.compileStatement(sql);
         statement.clearBindings();
 
-        statement.bindString(1, date);
+        statement.bindString(1, data);
         statement.executeInsert();
     }
 
@@ -71,30 +72,53 @@ public class SQLiteHelper extends SQLiteOpenHelper {
     }
 
     // Check image is exist
-    public boolean isImageExist(){
+    public int checkImageExist(){
         try{
             Cursor cursor = getData("SELECT * FROM LOVE");
             while (cursor.moveToNext()) {
-                System.out.println("fuck: " + cursor.getBlob(2));
-                if(cursor.getBlob(2) == null){
-                    return false;
-                } else {
-                    return true;
+                System.out.println("DBdata: " + cursor.getBlob(2));
+                // if both are null
+                if(cursor.getBlob(1) == null && cursor.getBlob(2) == null) {
+                    return 0;
                 }
-            } return false;
+                // if only image 1 is exist
+                else if(cursor.getBlob(1) != null && cursor.getBlob(2) == null) {
+                    return 1;
+                }
+                // if only image 2 is exist
+                else if(cursor.getBlob(1) == null && cursor.getBlob(2) != null) {
+                    return 2;
+                }
+                // if both are exist
+                else if(cursor.getBlob(1) != null && cursor.getBlob(2) != null){
+                    return 3;
+                } else {
+                    return 4;
+                }
+            }
         } catch(Exception e){
             e.printStackTrace();
-            return false;
+            return -1;
         }
+        return -1;
     }
 
     // Get Image
-    public byte[] getImage(){
-        Cursor cursor = getData("SELECT * FROM LOVE");
+    public byte[] getImage(int index){
+        String sql = "SELECT * FROM LOVE WHERE id = " + index;
+
+        Cursor cursor = getData(sql);
+        System.out.println("cursor: " + cursor);
         byte[] image = null;
 
-        while (cursor.moveToNext()) {
-            image = cursor.getBlob(2);
+        if(index == 1) {
+            while (cursor.moveToNext()) {
+                image = cursor.getBlob(1);
+            }
+        } else if(index == 2) {
+            while (cursor.moveToNext()) {
+                image = cursor.getBlob(1);
+            }
         }
         return image;
     }

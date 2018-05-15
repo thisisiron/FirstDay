@@ -28,9 +28,13 @@ import static com.example.iron.myapplication.DateSettingActivity.sqLiteHelper;
 
 public class MainActivity extends AppCompatActivity {
 
-    TextView textView;
-    ImageView userImage1;
-
+    private TextView textView;
+    private ImageView userImage1;
+    private ImageView userImage2;
+    public static final boolean USERIMAGE_1 = false; // false if userImage1 is empty
+    public static final boolean USERIMAGE_2 = false;
+    byte[] existedImage1 = null;
+    byte[] existedImage2 = null;
 
     private BackPressCloseHandler backPressCloseHandler;
 
@@ -40,7 +44,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
         init();
 
         showFirstDay();
@@ -48,18 +51,50 @@ public class MainActivity extends AppCompatActivity {
         // calc and show First day depended on the input time
         backPressCloseHandler = new BackPressCloseHandler(this);
 
+        // load the image if a image already exists on a ImageView
+        switch (sqLiteHelper.checkImageExist()) {
 
-        if(sqLiteHelper.isImageExist()){
-            byte[] existedImage = sqLiteHelper.getImage();
-            Bitmap bitmap = BitmapFactory.decodeByteArray(existedImage, 0, existedImage.length);
-            userImage1.setImageBitmap(bitmap);
+            case 0:
+//                byte[] existedImage = sqLiteHelper.getImage();
+//                Bitmap bitmap = BitmapFactory.decodeByteArray(existedImage, 0, existedImage.length);
+//                userImage1.setImageBitmap(bitmap);
+                System.out.println("0");
+                break;
+            case 1:
+                System.out.println("1");
+                break;
+            case 2:
+                System.out.println("2");
+//                existedImage2 = sqLiteHelper.getImage(2);
+//                Bitmap bitmap = BitmapFactory.decodeByteArray(existedImage1, 0, existedImage1.length);
+//                userImage1.setImageBitmap(bitmap);
+                break;
+            case 3:
+                System.out.println("3");
+                existedImage1 = sqLiteHelper.getImage(1);
+                existedImage2 = sqLiteHelper.getImage(2);
+                Bitmap bitmap1 = BitmapFactory.decodeByteArray(existedImage1, 0, existedImage1.length);
+                userImage1.setImageBitmap(bitmap1);
+                Bitmap bitmap2 = BitmapFactory.decodeByteArray(existedImage2, 0, existedImage2.length);
+                userImage2.setImageBitmap(bitmap2);
+                break;
+            default:
+                System.out.println("error");
+                break;
         }
-
 
         userImage1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 userImage1.setImageDrawable(null);
+                Crop.pickImage(MainActivity.this);
+            }
+        });
+
+        userImage2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                userImage2.setImageDrawable(null);
                 Crop.pickImage(MainActivity.this);
             }
         });
@@ -94,17 +129,12 @@ public class MainActivity extends AppCompatActivity {
     // store image at DB
     private void storeImage(){
         try{
-            sqLiteHelper.updateData(
-                    imageViewToByte(userImage1),
-                    1
-            );
+            sqLiteHelper.updateData(imageViewToByte(userImage1), 1);
             sqLiteHelper.printDBContext();
         } catch(Exception e){
             Log.e("Update error", e.getMessage());
         }
     }
-
-
 
     // when you store image to DB
     public static byte[] imageViewToByte(ImageView image) {
@@ -115,6 +145,7 @@ public class MainActivity extends AppCompatActivity {
         return byteArray;
     }
 
+    // calculate First day and display it
     public void showFirstDay() {
         Cursor cursor = sqLiteHelper.getData("SELECT * FROM LOVE");
         while(cursor.moveToNext()){
@@ -134,11 +165,10 @@ public class MainActivity extends AppCompatActivity {
         backPressCloseHandler.onBackPressed();
     }
 
-
-
     private void init(){
         textView = (TextView)findViewById(R.id.calculatedDay);
         userImage1 = (ImageView)findViewById(R.id.user_image1);
+        userImage2 = (ImageView)findViewById(R.id.user_image2);
     }
 
 }
