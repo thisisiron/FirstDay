@@ -122,11 +122,11 @@ public class MainActivity extends AppCompatActivity {
         if (resultCode == RESULT_OK) {
             if(USERIMAGE_1==true){
                 userImage1.setImageURI(Crop.getOutput(result));
-                storeImage(1);
+                storeImage(userImage1, 1);
                 USERIMAGE_1=false;
             } else if(USERIMAGE_2==true){
                 userImage2.setImageURI(Crop.getOutput(result));
-                storeImage(2);
+                storeImage(userImage2, 2);
                 USERIMAGE_2=false;
             }
 
@@ -137,9 +137,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // store image at DB
-    private void storeImage(int index){
+    private void storeImage(ImageView image, int index){
         try{
-            sqLiteHelper.updateData(imageViewToByte(userImage1), index, 1);
+            sqLiteHelper.updateData(imageViewToByte(image), index, 1);
             sqLiteHelper.printDBContext();
         } catch(Exception e){
             Log.e("Update error", e.getMessage());
