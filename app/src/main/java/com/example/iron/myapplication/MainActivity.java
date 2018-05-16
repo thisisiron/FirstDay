@@ -20,6 +20,7 @@ import android.widget.Toast;
 
 import com.soundcloud.android.crop.Crop;
 
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 
@@ -31,11 +32,12 @@ public class MainActivity extends AppCompatActivity {
     private TextView textView;
     private ImageView userImage1;
     private ImageView userImage2;
-    public static final boolean USERIMAGE_1 = false; // false if userImage1 is empty
-    public static final boolean USERIMAGE_2 = false;
+    public static boolean USERIMAGE_1 = false; // false if userImage1 is empty
+    public static boolean USERIMAGE_2 = false;
     byte[] existedImage1 = null;
     byte[] existedImage2 = null;
-
+    private static int img1 = 100;
+    private static int img2 = 200;
     private BackPressCloseHandler backPressCloseHandler;
 
 
@@ -50,36 +52,32 @@ public class MainActivity extends AppCompatActivity {
 
         // calc and show First day depended on the input time
         backPressCloseHandler = new BackPressCloseHandler(this);
-
+        Bitmap bitmap1;
+        Bitmap bitmap2;
         // load the image if a image already exists on a ImageView
         switch (sqLiteHelper.checkImageExist()) {
 
-            case 0:
-//                byte[] existedImage = sqLiteHelper.getImage();
-//                Bitmap bitmap = BitmapFactory.decodeByteArray(existedImage, 0, existedImage.length);
-//                userImage1.setImageBitmap(bitmap);
-                System.out.println("0");
-                break;
             case 1:
-                System.out.println("1");
+                existedImage1 = sqLiteHelper.getImage(1);
+                bitmap1 = BitmapFactory.decodeByteArray(existedImage1, 0, existedImage1.length);
+                userImage1.setImageBitmap(bitmap1);
                 break;
             case 2:
-                System.out.println("2");
-//                existedImage2 = sqLiteHelper.getImage(2);
-//                Bitmap bitmap = BitmapFactory.decodeByteArray(existedImage1, 0, existedImage1.length);
-//                userImage1.setImageBitmap(bitmap);
+                existedImage2 = sqLiteHelper.getImage(2);
+                bitmap2 = BitmapFactory.decodeByteArray(existedImage2, 0, existedImage2.length);
+                userImage2.setImageBitmap(bitmap2);
                 break;
             case 3:
                 System.out.println("3");
                 existedImage1 = sqLiteHelper.getImage(1);
                 existedImage2 = sqLiteHelper.getImage(2);
-                Bitmap bitmap1 = BitmapFactory.decodeByteArray(existedImage1, 0, existedImage1.length);
+                bitmap1 = BitmapFactory.decodeByteArray(existedImage1, 0, existedImage1.length);
                 userImage1.setImageBitmap(bitmap1);
-                Bitmap bitmap2 = BitmapFactory.decodeByteArray(existedImage2, 0, existedImage2.length);
+                bitmap2 = BitmapFactory.decodeByteArray(existedImage2, 0, existedImage2.length);
                 userImage2.setImageBitmap(bitmap2);
                 break;
             default:
-                System.out.println("error");
+                System.out.println("nothing in it");
                 break;
         }
 
@@ -88,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 userImage1.setImageDrawable(null);
                 Crop.pickImage(MainActivity.this);
+                USERIMAGE_1=true;
             }
         });
 
@@ -96,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 userImage2.setImageDrawable(null);
                 Crop.pickImage(MainActivity.this);
+                USERIMAGE_2=true;
             }
         });
 
@@ -114,22 +114,32 @@ public class MainActivity extends AppCompatActivity {
     private void beginCrop(Uri source) {
         Uri destination = Uri.fromFile(new File(getCacheDir(), "cropped"));
         Crop.of(source, destination).asSquare().start(this);
+
     }
 
     // set image on ImageView
     private void handleCrop(int resultCode, Intent result) {
         if (resultCode == RESULT_OK) {
-            userImage1.setImageURI(Crop.getOutput(result));
-            storeImage();
+            if(USERIMAGE_1==true){
+                userImage1.setImageURI(Crop.getOutput(result));
+                storeImage(1);
+                USERIMAGE_1=false;
+            } else if(USERIMAGE_2==true){
+                userImage2.setImageURI(Crop.getOutput(result));
+                storeImage(2);
+                USERIMAGE_2=false;
+            }
+
+
         } else if (resultCode == Crop.RESULT_ERROR) {
             Toast.makeText(this, Crop.getError(result).getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
     // store image at DB
-    private void storeImage(){
+    private void storeImage(int index){
         try{
-            sqLiteHelper.updateData(imageViewToByte(userImage1), 1);
+            sqLiteHelper.updateData(imageViewToByte(userImage1), index, 1);
             sqLiteHelper.printDBContext();
         } catch(Exception e){
             Log.e("Update error", e.getMessage());
@@ -163,6 +173,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         backPressCloseHandler.onBackPressed();
+
     }
 
     private void init(){

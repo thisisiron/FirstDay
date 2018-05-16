@@ -30,10 +30,10 @@ public class SQLiteHelper extends SQLiteOpenHelper {
         statement.executeInsert();
     }
 
-    public void updateData(byte[] image, int id) {
+    public void updateData(byte[] image, int order, int id) {
         SQLiteDatabase database = getWritableDatabase();
-
-        String sql = "UPDATE LOVE SET image1 = ? WHERE id = ?";
+        String imageOrder = "image" + order;
+        String sql = "UPDATE LOVE SET " + imageOrder + " = ? WHERE id = ?";
         SQLiteStatement statement = database.compileStatement(sql);
 
         statement.bindBlob(1, image);
@@ -78,19 +78,19 @@ public class SQLiteHelper extends SQLiteOpenHelper {
             while (cursor.moveToNext()) {
                 System.out.println("DBdata: " + cursor.getBlob(2));
                 // if both are null
-                if(cursor.getBlob(1) == null && cursor.getBlob(2) == null) {
+                if(cursor.getBlob(2) == null && cursor.getBlob(3) == null) {
                     return 0;
                 }
                 // if only image 1 is exist
-                else if(cursor.getBlob(1) != null && cursor.getBlob(2) == null) {
+                else if(cursor.getBlob(2) != null && cursor.getBlob(3) == null) {
                     return 1;
                 }
                 // if only image 2 is exist
-                else if(cursor.getBlob(1) == null && cursor.getBlob(2) != null) {
+                else if(cursor.getBlob(2) == null && cursor.getBlob(3) != null) {
                     return 2;
                 }
                 // if both are exist
-                else if(cursor.getBlob(1) != null && cursor.getBlob(2) != null){
+                else if(cursor.getBlob(2) != null && cursor.getBlob(3) != null){
                     return 3;
                 } else {
                     return 4;
@@ -105,19 +105,18 @@ public class SQLiteHelper extends SQLiteOpenHelper {
 
     // Get Image
     public byte[] getImage(int index){
-        String sql = "SELECT * FROM LOVE WHERE id = " + index;
+        String sql = "SELECT * FROM LOVE";
 
         Cursor cursor = getData(sql);
-        System.out.println("cursor: " + cursor);
         byte[] image = null;
 
         if(index == 1) {
             while (cursor.moveToNext()) {
-                image = cursor.getBlob(1);
+                image = cursor.getBlob(2);
             }
         } else if(index == 2) {
             while (cursor.moveToNext()) {
-                image = cursor.getBlob(1);
+                image = cursor.getBlob(3);
             }
         }
         return image;
