@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">My Application</string>
+    <string name="app_name">First Day</string>
     <string name="title_activity_display_activty">DisplayActivty</string>
     <string name="title_activity_display">DisplayActivity</string>
 </resources>
