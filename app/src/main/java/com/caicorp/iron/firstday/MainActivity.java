@@ -1,7 +1,5 @@
-package com.example.iron.myapplication;
+package com.caicorp.iron.firstday;
 
-
-import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -20,11 +18,10 @@ import android.widget.Toast;
 
 import com.soundcloud.android.crop.Crop;
 
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 
-import static com.example.iron.myapplication.DateSettingActivity.sqLiteHelper;
+import static com.caicorp.iron.firstday.DateSettingActivity.sqLiteHelper;
 
 
 public class MainActivity extends AppCompatActivity {
