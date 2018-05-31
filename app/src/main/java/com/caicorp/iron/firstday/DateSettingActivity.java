@@ -33,7 +33,8 @@ public class DateSettingActivity extends AppCompatActivity {
             finish();
             startActivity(intent);
         } else {
-            sqLiteHelper.queryData("CREATE TABLE IF NOT EXISTS LOVE (Id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR, image1 BLOG, image2 BLOG)");
+            sqLiteHelper.queryData("CREATE TABLE IF NOT EXISTS day (Id INTEGER PRIMARY KEY AUTOINCREMENT, day VARCHAR)");
+            sqLiteHelper.queryData("CREATE TABLE IF NOT EXISTS photo (Id INTEGER PRIMARY KEY AUTOINCREMENT, image BLOG)");
 
             // send first day and change intent when you click on send btn
             btnSend.setOnClickListener(new View.OnClickListener() {
