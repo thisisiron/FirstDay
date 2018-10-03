@@ -41,13 +41,31 @@ public class DateSettingActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     try{
-                        sqLiteHelper.insertData(
-                                editText.getText().toString()
-                        );
-                        Toast.makeText(getApplicationContext(), "success!", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(DateSettingActivity.this, MainActivity.class);
-                        finish();
-                        startActivity(intent);
+
+                        String firstDay = editText.getText().toString();
+
+                        // Date 형식 체크 필요
+                        // 예를 들어 20184848일 경우 입력 가능하므로 수정 필요
+
+                        boolean check = false;
+                        if(firstDay == "" || firstDay == null || firstDay.length() == 0){
+                            Toast.makeText(getApplicationContext(), "공백은 허용되지 않습니다.", Toast.LENGTH_SHORT).show();
+                        } else if(firstDay.length() != 8) {
+                            Toast.makeText(getApplicationContext(), "yyyyMMdd 형식으로 작성해주세요.", Toast.LENGTH_SHORT).show();
+                        } else {
+                            check = true;
+                        }
+
+                        if(check){
+                            sqLiteHelper.insertData(
+                                    firstDay
+                            );
+                            Toast.makeText(getApplicationContext(), "success!", Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(DateSettingActivity.this, MainActivity.class);
+                            finish();
+                            startActivity(intent);
+                        }
+
                     }
                     catch (Exception e) {
                         e.printStackTrace();

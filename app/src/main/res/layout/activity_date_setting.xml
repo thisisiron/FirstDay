@@ -15,7 +15,7 @@
             android:id="@+id/textView_title"
             android:layout_width="match_parent"
             android:layout_height="46dp"
-            android:text="When is Yours first day?"
+            android:text="When is Yours first day? (ex. 20180721)"
             android:textSize="18sp" />
 
         <EditText

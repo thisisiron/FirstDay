@@ -1,5 +1,6 @@
 package com.caicorp.iron.firstday;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -8,6 +9,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 
 import android.net.Uri;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,6 +22,8 @@ import com.soundcloud.android.crop.Crop;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.caicorp.iron.firstday.DateSettingActivity.sqLiteHelper;
 
@@ -49,8 +53,12 @@ public class MainActivity extends AppCompatActivity {
 
         // calc and show First day depended on the input time
         backPressCloseHandler = new BackPressCloseHandler(this);
+
+        // Image
         Bitmap bitmap1;
         Bitmap bitmap2;
+
+
         // load the image if a image already exists on a ImageView
         switch (sqLiteHelper.checkImageExist()) {
 
@@ -81,18 +89,14 @@ public class MainActivity extends AppCompatActivity {
         userImage1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                userImage1.setImageDrawable(null);
-                Crop.pickImage(MainActivity.this);
-                USERIMAGE_1=true;
+                showProfile(1);
             }
         });
 
         userImage2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                userImage2.setImageDrawable(null);
-                Crop.pickImage(MainActivity.this);
-                USERIMAGE_2=true;
+                showProfile(2);
             }
         });
 
@@ -172,6 +176,56 @@ public class MainActivity extends AppCompatActivity {
         backPressCloseHandler.onBackPressed();
 
     }
+
+    void showProfile(final int imageNumber){
+
+        final List<String> ListItems = new ArrayList<>();
+        ListItems.add("Change profile image");
+        ListItems.add("Delete profile image");
+        final CharSequence[] items =  ListItems.toArray(new String[ListItems.size()]);
+
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Profile");
+        builder.setItems(items, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int pos) {
+                switch (pos){
+                    case 0:
+
+                        if(imageNumber == 1){
+                            userImage1.setImageDrawable(null);
+                            Crop.pickImage(MainActivity.this);
+                            USERIMAGE_1 = true;
+                        } else if(imageNumber==2) {
+                            userImage2.setImageDrawable(null);
+                            Crop.pickImage(MainActivity.this);
+                            USERIMAGE_2 = true;
+                        }
+
+                        Toast.makeText(MainActivity.this, "Change", Toast.LENGTH_SHORT).show();
+                        break;
+
+                    case 1:
+                        if(imageNumber == 1) {
+                            userImage1.setImageDrawable(null);
+                        } else if(imageNumber == 2){
+                            userImage2.setImageDrawable(null);
+                        }
+                        byte[] emptyArray = new byte[0];
+                        sqLiteHelper.updateData(emptyArray, imageNumber, 1);
+
+                        Toast.makeText(MainActivity.this, "Delete", Toast.LENGTH_SHORT).show();
+                        break;
+                }
+
+
+                dialog.dismiss();
+            }
+        });
+        builder.show();
+
+    }
+
 
     private void init(){
         textView = (TextView)findViewById(R.id.calculatedDay);
