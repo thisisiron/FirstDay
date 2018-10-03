@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private static int img2 = 200;
     private BackPressCloseHandler backPressCloseHandler;
 
-
+// Taesan Git Test
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
