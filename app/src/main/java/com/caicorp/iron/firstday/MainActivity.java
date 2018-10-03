@@ -193,11 +193,11 @@ public class MainActivity extends AppCompatActivity {
                     case 0:
 
                         if(imageNumber == 1){
-                            userImage1.setImageDrawable(null);
+//                            userImage1.setImageDrawable(null);
                             Crop.pickImage(MainActivity.this);
                             USERIMAGE_1 = true;
                         } else if(imageNumber==2) {
-                            userImage2.setImageDrawable(null);
+//                            userImage2.setImageDrawable(null);
                             Crop.pickImage(MainActivity.this);
                             USERIMAGE_2 = true;
                         }
