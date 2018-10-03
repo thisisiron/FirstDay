@@ -37,8 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private static int img2 = 200;
     private BackPressCloseHandler backPressCloseHandler;
 
-//Iron Git Test
-//from Taesan
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
