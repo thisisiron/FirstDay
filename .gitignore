@@ -11,4 +11,5 @@
 .externalNativeBuild
 /app/.idea
 /.idea
-
+/local.properties
+/app/local.properties
